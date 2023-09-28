@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tests.WebQuizEngineTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-09-27T15:07:58" hostname="iKoks-Ubuntu" time="3.666">
+  <properties/>
+  <testcase name="start" classname="tests.WebQuizEngineTest" time="3.666"/>
+  <system-out><![CDATA[?[1;31m
+Start test 1?[0m
+?[0;34m
+?[0m?[0;34m  .   ____          _            __ _ _
+?[0m?[0;34m /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+?[0m?[0;34m( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+?[0m?[0;34m \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+?[0m?[0;34m  '  |____| .__|_| |_|_| |_\__, | / / / /
+?[0m?[0;34m =========|_|==============|___/=/_/_/_/
+?[0m?[0;34m :: Spring Boot ::                (v2.5.6)
+?[0m?[0;34m
+?[0m?[0;34m2023-09-27 17:07:58.604  INFO 18717 --- [    Test worker] engine.WebQuizEngine                     : Starting WebQuizEngine using Java 17.0.8.1 on iKoks-Ubuntu with PID 18717 (started by tamerlan in /home/tamerlan/IdeaProjects/Web Quiz Engine (Java)/Web Quiz Engine (Java)/task)
+?[0m?[0;34m2023-09-27 17:07:58.607  INFO 18717 --- [    Test worker] engine.WebQuizEngine                     : No active profile set, falling back to default profiles: default
+?[0m?[0;34m2023-09-27 17:07:59.261  INFO 18717 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+?[0m?[0;34m2023-09-27 17:07:59.297  INFO 18717 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 29 ms. Found 2 JPA repository interfaces.
+?[0m?[0;34m2023-09-27 17:07:59.679  INFO 18717 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8889 (http)
+?[0m?[0;34m2023-09-27 17:07:59.686  INFO 18717 --- [    Test worker] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+?[0m?[0;34m2023-09-27 17:07:59.687  INFO 18717 --- [    Test worker] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.54]
+?[0m?[0;34m2023-09-27 17:07:59.741  INFO 18717 --- [    Test worker] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+?[0m?[0;34m2023-09-27 17:07:59.741  INFO 18717 --- [    Test worker] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1098 ms
+?[0m?[0;34m2023-09-27 17:07:59.946  INFO 18717 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+?[0m?[0;34m2023-09-27 17:07:59.977  INFO 18717 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.4.32.Final
+?[0m?[0;34m2023-09-27 17:08:00.063  INFO 18717 --- [    Test worker] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+?[0m?[0;34m2023-09-27 17:08:00.148  INFO 18717 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+?[0m?[0;34m2023-09-27 17:08:00.246  INFO 18717 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+?[0m?[0;34m2023-09-27 17:08:00.256  INFO 18717 --- [    Test worker] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+?[0m?[0;34m2023-09-27 17:08:00.654  INFO 18717 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+?[0m?[0;34m2023-09-27 17:08:00.659  INFO 18717 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+?[0m?[0;34m2023-09-27 17:08:00.874  WARN 18717 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+?[0m?[0;34m2023-09-27 17:08:01.199  INFO 18717 --- [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 14 endpoint(s) beneath base path '/actuator'
+?[0m?[0;34m2023-09-27 17:08:01.225  INFO 18717 --- [    Test worker] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8889 (http) with context path ''
+?[0m?[0;34m2023-09-27 17:08:01.235  INFO 18717 --- [    Test worker] engine.WebQuizEngine                     : Started WebQuizEngine in 2.879 seconds (JVM running for 3.316)
+?[0;34m2023-09-27 17:08:01.494  INFO 18717 --- [nio-8889-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+?[0m?[0;34m2023-09-27 17:08:01.495  INFO 18717 --- [nio-8889-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+?[0m?[0;34m2023-09-27 17:08:01.496  INFO 18717 --- [nio-8889-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+?[0m?[1;31m
+Start test 2?[0m
+?[1;31m
+Start test 3?[0m
+?[1;31m
+Start test 4?[0m
+?[1;31m
+Start test 5?[0m
+?[1;31m
+Start test 6?[0m
+?[1;31m
+Start test 7?[0m
+?[1;31m
+Start test 8?[0m
+?[1;31m
+Start test 9?[0m
+?[1;31m
+Start test 10?[0m
+?[1;31m
+Start test 11?[0m
+?[1;31m
+Start test 12?[0m
+?[1;31m
+Start test 13?[0m
+?[1;31m
+Start test 14?[0m
+?[1;31m
+Start test 15?[0m
+?[1;31m
+Start test 16?[0m
+?[1;31m
+Start test 17?[0m
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
