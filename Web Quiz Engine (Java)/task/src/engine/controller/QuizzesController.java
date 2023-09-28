@@ -19,15 +19,15 @@ public class QuizzesController {
     private final QuizRepository quizRepository;
 
     @PostMapping
-    public QuizWithID postNewQuiz(@RequestBody QuizWithAnswer quizWithAnswer) {
+    public QuizWithID postNewQuiz(@RequestBody PostQuiz postQuiz) {
 
         Quiz quiz = new Quiz();
-        quiz.setTitle(quizWithAnswer.getTitle());
-        quiz.setText(quizWithAnswer.getText());
-        quiz.setAnswer(quizWithAnswer.getAnswer());
+        quiz.setTitle(postQuiz.getTitle());
+        quiz.setText(postQuiz.getText());
+        quiz.setAnswer(postQuiz.getAnswers());
 
-        for (int i = 0; i < quizWithAnswer.getOptions().size(); i++) {
-            String option = quizWithAnswer.getOptions().get(i);
+        for (int i = 0; i < postQuiz.getOptions().size(); i++) {
+            String option = postQuiz.getOptions().get(i);
             QuizOption quizOption = new QuizOption(i, quiz, option);
 //            quizOption = quizOptionRepository.save(quizOption);
             quiz.addOption(quizOption);

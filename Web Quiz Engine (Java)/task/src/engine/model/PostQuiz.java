@@ -5,20 +5,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QuizWithAnswer {
+public class PostQuiz {
     private String title;
     private String text;
-    private List<String> options = new ArrayList<>();
-    private int answer;
+    private List<String> options;
+    private List<Integer> answers;
 
-    public void addOption(String option) {
-        options.add(option);
-    }
+//    public void addOption(String option) {
+//        options.add(option);
+//    }
 }
