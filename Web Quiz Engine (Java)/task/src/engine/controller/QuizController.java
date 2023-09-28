@@ -1,8 +1,8 @@
 package engine.controller;
 
+import engine.DTO.QuizSuccessResponse;
 import engine.model.Quiz;
 import engine.model.QuizOption;
-import engine.model.QuizResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,8 +23,8 @@ public class QuizController {
     }
 
     @PostMapping
-    public QuizResponse postQuizAnswer(@RequestParam int answer) {
-        if (answer == 2) return new QuizResponse(true, "Congratulations, you're right!");
-        else return new QuizResponse(false, "Wrong answer! Please, try again.");
+    public QuizSuccessResponse postQuizAnswer(@RequestParam int answer) {
+        if (answer == 2) return new QuizSuccessResponse(true);
+        else return new QuizSuccessResponse(false);
     }
 }

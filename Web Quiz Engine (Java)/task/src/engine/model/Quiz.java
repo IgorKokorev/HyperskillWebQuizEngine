@@ -20,6 +20,10 @@ public class Quiz {
     private String title;
     private String text;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "quiz_id", nullable = false)
     private List<QuizOption> options = new ArrayList<>();

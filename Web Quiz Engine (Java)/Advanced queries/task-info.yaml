@@ -799,6 +799,632 @@ files:
           }
       }
     learner_created: false
+  - name: src/engine/DTO/QuizResponse.java
+    visible: true
+    text: |
+      package engine.DTO;
+      
+      import engine.model.Quiz;
+      import engine.model.QuizOption;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import java.util.ArrayList;
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      public class QuizResponse {
+          private int id;
+          private String title;
+          private String text;
+          private List<String> options = new ArrayList<>();
+      
+          public QuizResponse(Quiz quiz) {
+              this.id = quiz.getId();
+              this.title = quiz.getTitle();
+              this.text = quiz.getText();
+      
+              List<QuizOption> sortedOptionsList = quiz.getOptions().stream().sorted().toList();
+              for (QuizOption option: sortedOptionsList) {
+                  this.options.add(option.getOption());
+              }
+          }
+      
+          public void addOption(String option) {
+              options.add(option);
+          }
+      
+      }
+    learner_created: true
+  - name: src/engine/model/QuizOption.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.persistence.*;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @Entity
+      @Table(name = "quiz_option")
+      public class QuizOption implements Comparable<QuizOption> {
+          @Id
+          @GeneratedValue(strategy = GenerationType.IDENTITY)
+          private Integer id;
+      
+          private Integer index;
+      
+          private String option;
+      
+          public QuizOption(Integer index, String option) {
+              this.index = index;
+              this.option = option;
+          }
+      
+          @Override
+          public int compareTo(QuizOption quizOption) {
+              return this.index.compareTo(quizOption.getIndex());
+          }
+      }
+    learner_created: true
+  - name: src/engine/UserDetailsServiceImpl.java
+    visible: true
+    text: |
+      package engine;
+      
+      import engine.repository.UserRepository;
+      import lombok.RequiredArgsConstructor;
+      import org.springframework.security.core.userdetails.UserDetails;
+      import org.springframework.security.core.userdetails.UserDetailsService;
+      import org.springframework.security.core.userdetails.UsernameNotFoundException;
+      import org.springframework.stereotype.Service;
+      
+      @Service
+      @RequiredArgsConstructor
+      public class UserDetailsServiceImpl implements UserDetailsService {
+          private final UserRepository userRepository;
+          @Override
+          public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+              return userRepository.findByEmail(username).orElseThrow();
+          }
+      }
+    learner_created: true
+  - name: src/engine/model/User.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      import org.springframework.security.core.GrantedAuthority;
+      import org.springframework.security.core.authority.SimpleGrantedAuthority;
+      import org.springframework.security.core.userdetails.UserDetails;
+      
+      import javax.persistence.*;
+      import java.util.Collection;
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @Entity
+      @Table(name = "quiz_user")
+      public class User implements UserDetails {
+          @Id
+          @GeneratedValue(strategy = GenerationType.IDENTITY)
+          private Integer id;
+          private String email;
+          private String password;
+          private String role;
+      
+          public User(String email, String password) {
+              this.email = email;
+              this.password = password;
+              this.role = "USER";
+          }
+      
+      
+          @Override
+          public Collection<? extends GrantedAuthority> getAuthorities() {
+              return List.of(new SimpleGrantedAuthority(role));
+          }
+      
+          @Override
+          public String getPassword() {
+              return password;
+          }
+      
+          @Override
+          public String getUsername() {
+              return email;
+          }
+      
+          @Override
+          public boolean isAccountNonExpired() {
+              return true;
+          }
+      
+          @Override
+          public boolean isAccountNonLocked() {
+              return true;
+          }
+      
+          @Override
+          public boolean isCredentialsNonExpired() {
+              return true;
+          }
+      
+          @Override
+          public boolean isEnabled() {
+              return true;
+          }
+      }
+    learner_created: true
+  - name: src/engine/DTO/PostQuizRequest.java
+    visible: true
+    text: |
+      package engine.DTO;
+      
+      import lombok.AllArgsConstructor;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.validation.constraints.NotBlank;
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      public class PostQuizRequest {
+          @NotBlank(message = "Title is mandatory")
+          private String title;
+          @NotBlank(message = "Text is mandatory")
+          private String text;
+          private List<String> options;
+          private List<Integer> answer;
+      
+      }
+    learner_created: true
+  - name: src/engine/repository/QuizAnswerRepository.java
+    visible: true
+    text: |
+      package engine.repository;
+      
+      import engine.model.QuizAnswer;
+      import org.springframework.data.jpa.repository.JpaRepository;
+      import org.springframework.stereotype.Repository;
+      
+      @Repository
+      public interface QuizAnswerRepository extends JpaRepository<QuizAnswer, Integer> {
+      }
+    learner_created: true
+  - name: src/engine/WebSecurityConfig.java
+    visible: true
+    text: |
+      package engine;
+      
+      import lombok.RequiredArgsConstructor;
+      import org.springframework.context.annotation.Bean;
+      import org.springframework.context.annotation.Configuration;
+      import org.springframework.http.HttpMethod;
+      import org.springframework.security.authentication.AuthenticationManager;
+      import org.springframework.security.config.Customizer;
+      import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+      import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+      import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+      import org.springframework.security.config.http.SessionCreationPolicy;
+      import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+      import org.springframework.security.web.SecurityFilterChain;
+      
+      @Configuration
+      @RequiredArgsConstructor
+      public class WebSecurityConfig {
+          private final UserDetailsServiceImpl userDetailsService;
+      
+          @Bean
+          public BCryptPasswordEncoder passwordEncoder() {
+              return new BCryptPasswordEncoder(13);
+          }
+      
+          @Bean
+          public AuthenticationManager authenticationManagerBean(HttpSecurity http) throws Exception {
+              AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+              authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+              return authenticationManagerBuilder.build();
+          }
+      
+          @Bean
+          public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+              http
+                      .authorizeHttpRequests((auth) -> auth
+                              .antMatchers(HttpMethod.POST, "/api/register").permitAll()
+                              .antMatchers("/actuator/**").permitAll()
+                              .anyRequest().authenticated()
+                      )
+                      .httpBasic(Customizer.withDefaults())
+                      .cors(AbstractHttpConfigurer::disable)
+                      .csrf(AbstractHttpConfigurer::disable)
+                      .sessionManagement((session) -> session
+                              .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                      );
+      
+              return http.build();
+          }
+      }
+    learner_created: true
+  - name: src/engine/repository/UserRepository.java
+    visible: true
+    text: |
+      package engine.repository;
+      
+      import engine.model.User;
+      import org.springframework.data.repository.CrudRepository;
+      
+      import java.util.Optional;
+      
+      public interface UserRepository extends CrudRepository<User, Integer> {
+          Optional<User> findByEmail(String email);
+      }
+    learner_created: true
+  - name: src/engine/repository/QuizRepository.java
+    visible: true
+    text: |
+      package engine.repository;
+      
+      import engine.model.Quiz;
+      import org.springframework.data.jpa.repository.JpaRepository;
+      import org.springframework.stereotype.Repository;
+      
+      @Repository
+      public interface QuizRepository extends JpaRepository<Quiz, Integer> {
+      }
+    learner_created: true
+  - name: src/engine/controller/QuizzesController.java
+    visible: true
+    text: |
+      package engine.controller;
+      
+      import engine.DTO.PostAnswersRequest;
+      import engine.DTO.PostQuizRequest;
+      import engine.DTO.QuizResponse;
+      import engine.DTO.QuizSuccessResponse;
+      import engine.model.Quiz;
+      import engine.model.QuizAnswer;
+      import engine.model.QuizOption;
+      import engine.model.User;
+      import engine.repository.QuizOptionRepository;
+      import engine.repository.QuizRepository;
+      import lombok.RequiredArgsConstructor;
+      import org.springframework.http.HttpStatus;
+      import org.springframework.http.ResponseEntity;
+      import org.springframework.security.core.annotation.AuthenticationPrincipal;
+      import org.springframework.web.bind.annotation.*;
+      
+      import javax.validation.Valid;
+      import java.util.List;
+      import java.util.Optional;
+      
+      @RestController
+      @RequestMapping("/api/quizzes")
+      @RequiredArgsConstructor
+      public class QuizzesController {
+          private final QuizOptionRepository quizOptionRepository;
+          private final QuizRepository quizRepository;
+      
+          @PostMapping
+          public ResponseEntity<QuizResponse> postNewQuiz(
+                  @Valid @RequestBody PostQuizRequest postQuizRequest,
+                  @AuthenticationPrincipal User user) {
+      
+              Quiz quiz = new Quiz();
+              quiz.setTitle(postQuizRequest.getTitle());
+              quiz.setText(postQuizRequest.getText());
+              quiz.setUser(user);
+      
+              int optionsNumber = postQuizRequest.getOptions() == null ? 0 : postQuizRequest.getOptions().size();
+              if (optionsNumber < 2) return ResponseEntity.badRequest().build();
+      
+              for (int i = 0; i < optionsNumber; i++) {
+                  String option = postQuizRequest.getOptions().get(i);
+                  QuizOption quizOption = new QuizOption(i, option);
+                  quiz.addOption(quizOption);
+              }
+      
+              int answersNumber = postQuizRequest.getAnswer() == null ? 0 : postQuizRequest.getAnswer().size();
+              for (int i = 0; i < answersNumber; i++) {
+                  Integer index = postQuizRequest.getAnswer().get(i);
+                  QuizAnswer quizAnswer = new QuizAnswer(index);
+                  quiz.addAnswer(quizAnswer);
+              }
+      
+              quiz = quizRepository.save(quiz);
+      
+              return ResponseEntity.ok(new QuizResponse(quiz));
+          }
+      
+          @GetMapping("/{id}")
+          public ResponseEntity<QuizResponse> getQuizById(@PathVariable Integer id) {
+              Optional<Quiz> quiz = quizRepository.findById(id);
+              return quiz.map(value ->
+                      ResponseEntity.ok(new QuizResponse(value))).orElseGet(() -> ResponseEntity.notFound().build());
+          }
+      
+          @GetMapping
+          public ResponseEntity<List<QuizResponse>> getAllQuizzes() {
+              List<Quiz> quizzes = quizRepository.findAll();
+              return ResponseEntity.ok(
+                      quizzes.stream()
+                              .map(QuizResponse::new)
+                              .toList()
+              );
+          }
+      
+          @PostMapping("/{id}/solve")
+          public ResponseEntity<QuizSuccessResponse> postQuizAnswer(@PathVariable Integer id, @RequestBody PostAnswersRequest answer) {
+              Optional<Quiz> quizOptional = quizRepository.findById(id);
+              if (quizOptional.isEmpty()) return ResponseEntity.notFound().build();
+              Quiz quiz = quizOptional.get();
+              List<Integer> quizAnswers = quiz.getAnswers().stream()
+                      .map(QuizAnswer::getIndex)
+                      .sorted()
+                      .toList();
+      
+              List<Integer> postedAnswers = answer.getAnswer().stream()
+                      .sorted()
+                      .toList();
+      
+              if (quizAnswers.isEmpty() && postedAnswers.isEmpty()) return ResponseEntity.ok(new QuizSuccessResponse(true));
+      
+              if (quizAnswers.equals(postedAnswers)) return ResponseEntity.ok(new QuizSuccessResponse(true));
+              else return ResponseEntity.ok(new QuizSuccessResponse(false));
+          }
+      
+          @DeleteMapping("/{id}")
+          public ResponseEntity<?> deleteQuiz(@PathVariable Integer id, @AuthenticationPrincipal User user) {
+              Optional<Quiz> quizOptional = quizRepository.findById(id);
+              if (quizOptional.isEmpty()) return ResponseEntity.notFound().build();
+              Quiz quiz = quizOptional.get();
+      
+              if (quiz.getUser().getId() != user.getId()) return new ResponseEntity(HttpStatus.FORBIDDEN);
+      
+              quizRepository.delete(quiz);
+      
+              return ResponseEntity.noContent().build();
+          }
+      }
+    learner_created: true
+  - name: src/engine/controller/UserController.java
+    visible: true
+    text: |
+      package engine.controller;
+      
+      import engine.DTO.RegisterRequest;
+      import engine.model.User;
+      import engine.repository.UserRepository;
+      import lombok.RequiredArgsConstructor;
+      import org.springframework.http.ResponseEntity;
+      import org.springframework.security.crypto.password.PasswordEncoder;
+      import org.springframework.validation.annotation.Validated;
+      import org.springframework.web.bind.annotation.PostMapping;
+      import org.springframework.web.bind.annotation.RequestBody;
+      import org.springframework.web.bind.annotation.RequestMapping;
+      import org.springframework.web.bind.annotation.RestController;
+      
+      @RestController
+      @RequestMapping("/api/register")
+      @RequiredArgsConstructor
+      public class UserController {
+          private final UserRepository userRepository;
+          private final PasswordEncoder passwordEncoder;
+      
+          @PostMapping
+          public ResponseEntity<String> registerUser(@Validated @RequestBody RegisterRequest request) {
+              if (userRepository.findByEmail(request.getEmail()).isPresent())
+                  return ResponseEntity.badRequest().build();
+      
+              String encodedPassword = passwordEncoder.encode(request.getPassword());
+              User user = new User(request.getEmail(), encodedPassword);
+              user = userRepository.save(user);
+      
+              return ResponseEntity.ok("User " + request.getEmail() + " successfully added");
+          }
+      }
+    learner_created: true
+  - name: src/engine/model/Quiz.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.persistence.*;
+      import java.util.ArrayList;
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @Entity
+      @Table(name = "quiz")
+      public class Quiz {
+          @Id
+          @GeneratedValue(strategy = GenerationType.IDENTITY)
+          private Integer id;
+          private String title;
+          private String text;
+      
+          @ManyToOne
+          @JoinColumn(name = "user_id")
+          private User user;
+      
+          @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+          @JoinColumn(name = "quiz_id", nullable = false)
+          private List<QuizOption> options = new ArrayList<>();
+      
+          @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+          @JoinColumn(name = "quiz_id", nullable = false)
+          private List<QuizAnswer> answers = new ArrayList<>();
+      
+          public void addOption(QuizOption option) {
+              options.add(option);
+          }
+          public void addAnswer(QuizAnswer answer) {
+              answers.add(answer);
+          }
+      
+      }
+    learner_created: true
+  - name: src/engine/DTO/PostAnswersRequest.java
+    visible: true
+    text: |
+      package engine.DTO;
+      
+      import lombok.Getter;
+      import lombok.Setter;
+      
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      public class PostAnswersRequest {
+          private List<Integer> answer;
+      }
+    learner_created: true
+  - name: src/engine/DTO/RegisterRequest.java
+    visible: true
+    text: |
+      package engine.DTO;
+      
+      import lombok.Getter;
+      import lombok.Setter;
+      
+      import javax.validation.constraints.Email;
+      import javax.validation.constraints.NotEmpty;
+      import javax.validation.constraints.Size;
+      
+      @Getter
+      @Setter
+      public class RegisterRequest {
+          @Email(message = "Email is not valid", regexp="[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}")
+          @NotEmpty(message = "Email cannot be empty")
+          private String email;
+          @Size(min = 5)
+          private String password;
+      }
+    learner_created: true
+  - name: src/engine/controller/QuizController.java
+    visible: true
+    text: |
+      package engine.controller;
+      
+      import engine.DTO.QuizSuccessResponse;
+      import engine.model.Quiz;
+      import engine.model.QuizOption;
+      import org.springframework.web.bind.annotation.*;
+      
+      @RestController
+      @RequestMapping("/api/quiz")
+      public class QuizController {
+      
+          @GetMapping
+          public Quiz getQuiz() {
+              Quiz quiz = new Quiz();
+              quiz.setTitle("The Java Logo");
+              quiz.setText("What is depicted on the Java logo?");
+              quiz.addOption(new QuizOption(0, "Robot"));
+              quiz.addOption(new QuizOption(1, "Tea leaf"));
+              quiz.addOption(new QuizOption(2, "Cup of coffee"));
+              quiz.addOption(new QuizOption(3, "Bug"));
+      
+              return quiz;
+          }
+      
+          @PostMapping
+          public QuizSuccessResponse postQuizAnswer(@RequestParam int answer) {
+              if (answer == 2) return new QuizSuccessResponse(true);
+              else return new QuizSuccessResponse(false);
+          }
+      }
+    learner_created: true
+  - name: src/engine/DTO/QuizSuccessResponse.java
+    visible: true
+    text: |
+      package engine.DTO;
+      
+      import lombok.AllArgsConstructor;
+      import lombok.Getter;
+      import lombok.Setter;
+      
+      @Getter
+      @Setter
+      public class QuizSuccessResponse {
+          private boolean success;
+          private String feedback;
+      
+          public QuizSuccessResponse(boolean success) {
+              this.success = success;
+              if (success) feedback = "Congratulations, you're right!";
+              else feedback = "Wrong answer! Please, try again.";
+          }
+      }
+    learner_created: true
+  - name: src/engine/repository/QuizOptionRepository.java
+    visible: true
+    text: |
+      package engine.repository;
+      
+      import engine.model.QuizOption;
+      import org.springframework.data.jpa.repository.JpaRepository;
+      import org.springframework.stereotype.Repository;
+      
+      @Repository
+      public interface QuizOptionRepository extends JpaRepository<QuizOption, Integer> {
+      }
+    learner_created: true
+  - name: src/engine/model/QuizAnswer.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.persistence.*;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @Entity
+      @Table(name = "quiz_answer")
+      public class QuizAnswer implements Comparable<QuizAnswer> {
+          @Id
+          @GeneratedValue(strategy = GenerationType.IDENTITY)
+          private Integer id;
+      
+          private Integer index;
+      
+          public QuizAnswer(Integer index) {
+              this.index = index;
+          }
+      
+          @Override
+          public int compareTo(QuizAnswer quizAnswer) {
+              return this.index.compareTo(quizAnswer.getIndex());
+          }
+      }
+    learner_created: true
 feedback_link: https://hyperskill.org/learn/step/8257#comment
 status: Unchecked
-record: -1
+record: 6
