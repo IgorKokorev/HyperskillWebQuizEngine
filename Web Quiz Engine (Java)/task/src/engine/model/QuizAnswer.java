@@ -10,23 +10,20 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "quiz_option")
-public class QuizOption implements Comparable<QuizOption> {
+@Table(name = "quiz_answer")
+public class QuizAnswer implements Comparable<QuizAnswer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private Integer index;
 
-    private String option;
-
-    public QuizOption(Integer index, String option) {
+    public QuizAnswer(Integer index) {
         this.index = index;
-        this.option = option;
     }
 
     @Override
-    public int compareTo(QuizOption quizOption) {
-        return this.index.compareTo(quizOption.getIndex());
+    public int compareTo(QuizAnswer quizAnswer) {
+        return this.index.compareTo(quizAnswer.getIndex());
     }
 }

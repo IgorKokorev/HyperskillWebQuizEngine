@@ -14,10 +14,10 @@ public class QuizController {
         Quiz quiz = new Quiz();
         quiz.setTitle("The Java Logo");
         quiz.setText("What is depicted on the Java logo?");
-        quiz.addOption(new QuizOption(0, quiz, "Robot"));
-        quiz.addOption(new QuizOption(1, quiz, "Tea leaf"));
-        quiz.addOption(new QuizOption(2, quiz, "Cup of coffee"));
-        quiz.addOption(new QuizOption(3, quiz, "Bug"));
+        quiz.addOption(new QuizOption(0, "Robot"));
+        quiz.addOption(new QuizOption(1, "Tea leaf"));
+        quiz.addOption(new QuizOption(2, "Cup of coffee"));
+        quiz.addOption(new QuizOption(3, "Bug"));
 
         return quiz;
     }

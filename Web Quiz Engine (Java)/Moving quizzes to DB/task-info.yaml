@@ -470,6 +470,383 @@ files:
           }
       }
     learner_created: false
+  - name: src/engine/model/QuizOption.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.persistence.*;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @Entity
+      @Table(name = "quiz_option")
+      public class QuizOption implements Comparable<QuizOption> {
+          @Id
+          @GeneratedValue(strategy = GenerationType.IDENTITY)
+          private Integer id;
+      
+          private Integer index;
+      
+          private String option;
+      
+          public QuizOption(Integer index, String option) {
+              this.index = index;
+              this.option = option;
+          }
+      
+          @Override
+          public int compareTo(QuizOption quizOption) {
+              return this.index.compareTo(quizOption.getIndex());
+          }
+      }
+    learner_created: true
+  - name: src/engine/model/QuizResponse.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.AllArgsConstructor;
+      import lombok.Getter;
+      import lombok.Setter;
+      
+      @Getter
+      @Setter
+      @AllArgsConstructor
+      public class QuizResponse {
+          private boolean success;
+          private String feedback;
+      
+          public QuizResponse(boolean success) {
+              this.success = success;
+              if (success) feedback = "Congratulations, you're right!";
+              else feedback = "Wrong answer! Please, try again.";
+          }
+      }
+    learner_created: true
+  - name: src/engine/model/PostQuiz.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.AllArgsConstructor;
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.validation.constraints.NotBlank;
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @AllArgsConstructor
+      public class PostQuiz {
+          @NotBlank(message = "Title is mandatory")
+          private String title;
+          @NotBlank(message = "Text is mandatory")
+          private String text;
+          private List<String> options;
+          private List<Integer> answer;
+      
+      }
+    learner_created: true
+  - name: src/engine/repository/QuizAnswerRepository.java
+    visible: true
+    text: |
+      package engine.repository;
+      
+      import engine.model.QuizAnswer;
+      import org.springframework.data.jpa.repository.JpaRepository;
+      import org.springframework.stereotype.Repository;
+      
+      @Repository
+      public interface QuizAnswerRepository extends JpaRepository<QuizAnswer, Integer> {
+      }
+    learner_created: true
+  - name: src/engine/repository/QuizRepository.java
+    visible: true
+    text: |
+      package engine.repository;
+      
+      import engine.model.Quiz;
+      import org.springframework.data.jpa.repository.JpaRepository;
+      import org.springframework.stereotype.Repository;
+      
+      @Repository
+      public interface QuizRepository extends JpaRepository<Quiz, Integer> {
+      }
+    learner_created: true
+  - name: src/engine/model/QuizWithID.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import java.util.ArrayList;
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      public class QuizWithID {
+          private int id;
+          private String title;
+          private String text;
+          private List<String> options = new ArrayList<>();
+      
+          public QuizWithID(Quiz quiz) {
+              this.id = quiz.getId();
+              this.title = quiz.getTitle();
+              this.text = quiz.getText();
+      
+              List<QuizOption> sortedOptionsList = quiz.getOptions().stream().sorted().toList();
+              for (QuizOption option: sortedOptionsList) {
+                  this.options.add(option.getOption());
+              }
+          }
+      
+          public void addOption(String option) {
+              options.add(option);
+          }
+      
+      }
+    learner_created: true
+  - name: src/engine/controller/QuizzesController.java
+    visible: true
+    text: |
+      package engine.controller;
+      
+      import engine.model.*;
+      import engine.repository.QuizOptionRepository;
+      import engine.repository.QuizRepository;
+      import lombok.RequiredArgsConstructor;
+      import org.springframework.http.ResponseEntity;
+      import org.springframework.web.bind.annotation.*;
+      
+      import javax.validation.Valid;
+      import java.util.List;
+      import java.util.Optional;
+      
+      @RestController
+      @RequestMapping("/api/quizzes")
+      @RequiredArgsConstructor
+      public class QuizzesController {
+          private final QuizOptionRepository quizOptionRepository;
+          private final QuizRepository quizRepository;
+      
+          @PostMapping
+          public ResponseEntity<QuizWithID> postNewQuiz(@Valid @RequestBody PostQuiz postQuiz) {
+      
+              Quiz quiz = new Quiz();
+              quiz.setTitle(postQuiz.getTitle());
+              quiz.setText(postQuiz.getText());
+      
+              int optionsNumber = postQuiz.getOptions() == null ? 0 : postQuiz.getOptions().size();
+              if (optionsNumber < 2) return ResponseEntity.badRequest().build();
+      
+              for (int i = 0; i < optionsNumber; i++) {
+                  String option = postQuiz.getOptions().get(i);
+                  QuizOption quizOption = new QuizOption(i, option);
+                  quiz.addOption(quizOption);
+              }
+      
+              int answersNumber = postQuiz.getAnswer() == null ? 0 : postQuiz.getAnswer().size();
+              for (int i = 0; i < answersNumber; i++) {
+                  Integer index = postQuiz.getAnswer().get(i);
+                  QuizAnswer quizAnswer = new QuizAnswer(index);
+                  quiz.addAnswer(quizAnswer);
+              }
+      
+              quiz = quizRepository.save(quiz);
+      
+              return ResponseEntity.ok(new QuizWithID(quiz));
+          }
+      
+          @GetMapping("/{id}")
+          public ResponseEntity<QuizWithID> getQuizById(@PathVariable Integer id) {
+              Optional<Quiz> quiz = quizRepository.findById(id);
+              return quiz.map(value ->
+                      ResponseEntity.ok(new QuizWithID(value))).orElseGet(() -> ResponseEntity.notFound().build());
+          }
+      
+          @GetMapping
+          public ResponseEntity<List<QuizWithID>> getAllQuizzes() {
+              List<Quiz> quizzes = quizRepository.findAll();
+              return ResponseEntity.ok(
+                      quizzes.stream()
+                              .map(QuizWithID::new)
+                              .toList()
+              );
+          }
+      
+          @PostMapping("/{id}/solve")
+          public ResponseEntity<QuizResponse> postQuizAnswer(@PathVariable Integer id, @RequestBody PostAnswers answer) {
+              Optional<Quiz> quizOptional = quizRepository.findById(id);
+              if (quizOptional.isEmpty()) return ResponseEntity.notFound().build();
+              Quiz quiz = quizOptional.get();
+              List<Integer> quizAnswers = quiz.getAnswers().stream()
+                      .map(QuizAnswer::getIndex)
+                      .sorted()
+                      .toList();
+      
+              List<Integer> postedAnswers = answer.getAnswer().stream()
+                      .sorted()
+                      .toList();
+      
+              if (quizAnswers.isEmpty() && postedAnswers.isEmpty()) return ResponseEntity.ok(new QuizResponse(true));
+      
+              if (quizAnswers.equals(postedAnswers)) return ResponseEntity.ok(new QuizResponse(true));
+              else return ResponseEntity.ok(new QuizResponse(false));
+          }
+      }
+    learner_created: true
+  - name: src/engine/model/Quiz.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.persistence.*;
+      import java.util.ArrayList;
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @Entity
+      @Table(name = "quiz")
+      public class Quiz {
+          @Id
+          @GeneratedValue(strategy = GenerationType.IDENTITY)
+          private Integer id;
+          private String title;
+          private String text;
+      
+          @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+          @JoinColumn(name = "quiz_id", nullable = false)
+          private List<QuizOption> options = new ArrayList<>();
+      
+          @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+          @JoinColumn(name = "quiz_id", nullable = false)
+          private List<QuizAnswer> answers = new ArrayList<>();
+      
+          public void addOption(QuizOption option) {
+              options.add(option);
+          }
+          public void addAnswer(QuizAnswer answer) {
+              answers.add(answer);
+          }
+      
+      }
+    learner_created: true
+  - name: src/engine/model/PostAnswers.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.Setter;
+      
+      import java.util.List;
+      
+      @Getter
+      @Setter
+      public class PostAnswers {
+          private List<Integer> answer;
+      }
+    learner_created: true
+  - name: src/engine/controller/QuizController.java
+    visible: true
+    text: |
+      package engine.controller;
+      
+      import engine.model.Quiz;
+      import engine.model.QuizOption;
+      import engine.model.QuizResponse;
+      import org.springframework.web.bind.annotation.*;
+      
+      @RestController
+      @RequestMapping("/api/quiz")
+      public class QuizController {
+      
+          @GetMapping
+          public Quiz getQuiz() {
+              Quiz quiz = new Quiz();
+              quiz.setTitle("The Java Logo");
+              quiz.setText("What is depicted on the Java logo?");
+              quiz.addOption(new QuizOption(0, "Robot"));
+              quiz.addOption(new QuizOption(1, "Tea leaf"));
+              quiz.addOption(new QuizOption(2, "Cup of coffee"));
+              quiz.addOption(new QuizOption(3, "Bug"));
+      
+              return quiz;
+          }
+      
+          @PostMapping
+          public QuizResponse postQuizAnswer(@RequestParam int answer) {
+              if (answer == 2) return new QuizResponse(true, "Congratulations, you're right!");
+              else return new QuizResponse(false, "Wrong answer! Please, try again.");
+          }
+      }
+    learner_created: true
+  - name: src/engine/repository/QuizOptionRepository.java
+    visible: true
+    text: |
+      package engine.repository;
+      
+      import engine.model.QuizOption;
+      import org.springframework.data.jpa.repository.JpaRepository;
+      import org.springframework.stereotype.Repository;
+      
+      @Repository
+      public interface QuizOptionRepository extends JpaRepository<QuizOption, Integer> {
+      }
+    learner_created: true
+  - name: src/engine/model/QuizAnswer.java
+    visible: true
+    text: |
+      package engine.model;
+      
+      import lombok.Getter;
+      import lombok.NoArgsConstructor;
+      import lombok.Setter;
+      
+      import javax.persistence.*;
+      
+      @Getter
+      @Setter
+      @NoArgsConstructor
+      @Entity
+      @Table(name = "quiz_answer")
+      public class QuizAnswer implements Comparable<QuizAnswer> {
+          @Id
+          @GeneratedValue(strategy = GenerationType.IDENTITY)
+          private Integer id;
+      
+          private Integer index;
+      
+          public QuizAnswer(Integer index) {
+              this.index = index;
+          }
+      
+          @Override
+          public int compareTo(QuizAnswer quizAnswer) {
+              return this.index.compareTo(quizAnswer.getIndex());
+          }
+      }
+    learner_created: true
 feedback_link: https://hyperskill.org/learn/step/8255#comment
 status: Unchecked
 record: -1

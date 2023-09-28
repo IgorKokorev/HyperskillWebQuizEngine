@@ -1,6 +1,5 @@
 package engine.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +11,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name = "quiz")
 public class Quiz {
@@ -22,13 +20,19 @@ public class Quiz {
     private String title;
     private String text;
 
-    @OneToMany(mappedBy = "quiz", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "quiz_id", nullable = false)
     private List<QuizOption> options = new ArrayList<>();
 
-    private Integer answer;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "quiz_id", nullable = false)
+    private List<QuizAnswer> answers = new ArrayList<>();
 
     public void addOption(QuizOption option) {
         options.add(option);
+    }
+    public void addAnswer(QuizAnswer answer) {
+        answers.add(answer);
     }
 
 }
