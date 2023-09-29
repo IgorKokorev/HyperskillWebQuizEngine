@@ -1,5 +1,6 @@
 package engine.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +32,10 @@ public class Quiz {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "quiz_id", nullable = false)
     private List<QuizAnswer> answers = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL)
+    private List<CompletedQuiz> completedQuizzes;
 
     public void addOption(QuizOption option) {
         options.add(option);

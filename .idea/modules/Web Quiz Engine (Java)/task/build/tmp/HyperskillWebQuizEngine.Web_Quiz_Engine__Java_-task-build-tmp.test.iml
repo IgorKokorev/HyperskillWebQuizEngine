@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":util:main" external.linked.project.path="$MODULE_DIR$/../../../util" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="WebQuizEngine" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+<module external.linked.project.id=":Web_Quiz_Engine__Java_-task-build-tmp:test" external.linked.project.path="$MODULE_DIR$/../../../../../../Web Quiz Engine (Java)/task/build/tmp" external.root.project.path="$MODULE_DIR$/../../../../../.." external.system.id="GRADLE" external.system.module.group="HyperskillWebQuizEngine" external.system.module.type="sourceSet" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/../../../util/out/production/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../../../../Web Quiz Engine (Java)/task/build/tmp/out/test/classes" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../util/src" />
+    <content url="file://$MODULE_DIR$/../../../../../../Web Quiz Engine (Java)/task/build/tmp/src/test" />
+    <content url="file://$MODULE_DIR$/../../../../../../Web Quiz Engine (Java)/task/build/tmp/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../../../Web Quiz Engine (Java)/task/build/tmp/test" isTestSource="true" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="HyperskillWebQuizEngine.Web_Quiz_Engine__Java_-task-build-tmp.main" />
+    <orderEntry type="module" module-name="HyperskillWebQuizEngine.util.main" />
+    <orderEntry type="module" module-name="HyperskillWebQuizEngine.util.test" production-on-test="" />
     <orderEntry type="library" name="Gradle: com.github.hyperskill:hs-test:release-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Gradle: org.assertj:assertj-swing-junit:3.17.1" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.13.2" level="project" />
@@ -20,4 +26,5 @@
     <orderEntry type="library" name="Gradle: org.assertj:assertj-core:3.17.2" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.easytesting:fest-util:1.2.5" level="project" />
   </component>
+  <component name="TestModuleProperties" production-module="HyperskillWebQuizEngine.Web_Quiz_Engine__Java_-task-build-tmp.main" />
 </module>
