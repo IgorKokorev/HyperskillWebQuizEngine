@@ -1425,6 +1425,19 @@ files:
           }
       }
     learner_created: true
+  - name: src/engine/model/CompletedQuiz.java
+    visible: true
+    learner_created: true
+  - name: src/engine/DTO/CompletedQuizResponse.java
+    visible: true
+    learner_created: true
+  - name: src/engine/repository/CompletedQuizRepository.java
+    visible: true
+    learner_created: true
 feedback_link: https://hyperskill.org/learn/step/8257#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">Hyperskill</a>
+    to continue learning.
+  time: "Fri, 29 Sep 2023 10:19:10 UTC"
 record: 6

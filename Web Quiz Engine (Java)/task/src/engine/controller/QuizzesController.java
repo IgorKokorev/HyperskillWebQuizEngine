@@ -1,16 +1,13 @@
 package engine.controller;
 
-import engine.DTO.PostAnswersRequest;
-import engine.DTO.PostQuizRequest;
-import engine.DTO.QuizResponse;
-import engine.DTO.QuizSuccessResponse;
-import engine.model.Quiz;
-import engine.model.QuizAnswer;
-import engine.model.QuizOption;
-import engine.model.User;
-import engine.repository.QuizOptionRepository;
+import engine.DTO.*;
+import engine.model.*;
+import engine.repository.CompletedQuizRepository;
 import engine.repository.QuizRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +21,7 @@ import java.util.Optional;
 @RequestMapping("/api/quizzes")
 @RequiredArgsConstructor
 public class QuizzesController {
-    private final QuizOptionRepository quizOptionRepository;
+    private final CompletedQuizRepository completedQuizRepository;
     private final QuizRepository quizRepository;
 
     @PostMapping
@@ -49,8 +46,8 @@ public class QuizzesController {
         int answersNumber = postQuizRequest.getAnswer() == null ? 0 : postQuizRequest.getAnswer().size();
         for (int i = 0; i < answersNumber; i++) {
             Integer index = postQuizRequest.getAnswer().get(i);
-            QuizAnswer quizAnswer = new QuizAnswer(index);
-            quiz.addAnswer(quizAnswer);
+            QuizAnswer answer = new QuizAnswer(index);
+            quiz.addAnswer(answer);
         }
 
         quiz = quizRepository.save(quiz);
@@ -66,17 +63,17 @@ public class QuizzesController {
     }
 
     @GetMapping
-    public ResponseEntity<List<QuizResponse>> getAllQuizzes() {
-        List<Quiz> quizzes = quizRepository.findAll();
-        return ResponseEntity.ok(
-                quizzes.stream()
-                        .map(QuizResponse::new)
-                        .toList()
-        );
+    public ResponseEntity<Page<QuizResponse>> getAllQuizzes(@RequestParam Integer page) {
+        Page<Quiz> quizzes = quizRepository.findAll(PageRequest.of(page, 10));
+
+        return ResponseEntity.ok(quizzes.map(QuizResponse::new));
     }
 
     @PostMapping("/{id}/solve")
-    public ResponseEntity<QuizSuccessResponse> postQuizAnswer(@PathVariable Integer id, @RequestBody PostAnswersRequest answer) {
+    public ResponseEntity<QuizSuccessResponse> postQuizAnswer(
+            @PathVariable Integer id,
+            @RequestBody PostAnswersRequest answer,
+            @AuthenticationPrincipal User user) {
         Optional<Quiz> quizOptional = quizRepository.findById(id);
         if (quizOptional.isEmpty()) return ResponseEntity.notFound().build();
         Quiz quiz = quizOptional.get();
@@ -89,9 +86,11 @@ public class QuizzesController {
                 .sorted()
                 .toList();
 
-        if (quizAnswers.isEmpty() && postedAnswers.isEmpty()) return ResponseEntity.ok(new QuizSuccessResponse(true));
-
-        if (quizAnswers.equals(postedAnswers)) return ResponseEntity.ok(new QuizSuccessResponse(true));
+        if ((quizAnswers.isEmpty() && postedAnswers.isEmpty()) || quizAnswers.equals(postedAnswers)) {
+            CompletedQuiz completedQuiz = new CompletedQuiz(user, quiz);
+            completedQuizRepository.save(completedQuiz);
+            return ResponseEntity.ok(new QuizSuccessResponse(true));
+        }
         else return ResponseEntity.ok(new QuizSuccessResponse(false));
     }
 
@@ -106,5 +105,14 @@ public class QuizzesController {
         quizRepository.delete(quiz);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/completed")
+    public ResponseEntity<Page<CompletedQuizResponse>> getCompletedQuizzes(
+            @RequestParam Integer page,
+            @AuthenticationPrincipal User user) {
+        Page<CompletedQuiz> pageCompletedQuiz = completedQuizRepository.findAllByUser(user, PageRequest.of(page, 10, Sort.by("completedAt").descending()));
+
+        return ResponseEntity.ok(pageCompletedQuiz.map(CompletedQuizResponse::new));
     }
 }
